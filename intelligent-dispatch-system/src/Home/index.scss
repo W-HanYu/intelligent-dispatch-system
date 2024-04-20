@@ -1,0 +1,61 @@
+#index-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .header {
+    height: 60px;
+    // border-bottom: 1px solid #aaa;
+    line-height: 60px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    background-color: aliceblue;
+
+    .logo {
+      cursor: pointer;
+      height: 30px;
+      text-align: center;
+      margin-top: 14px;
+      margin-right: 30px;
+    }
+    .title_name {
+      font-size: 26px;
+      color: #000;
+      font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      font-weight: 700;
+    }
+  }
+
+  .icon {
+    font-size: 40px;
+    margin-top: 20px;
+  }
+
+  .body {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    // flex-direction: column;
+    .left {
+      margin-left: 20px;
+      width: 30%;
+      flex-shrink: 0;
+      .upload_file {
+        .data_type {
+          font-size: 1.2rem;
+          font-weight: bold;
+          margin-top: 1rem;
+          text-align: center;
+        }
+      }
+    }
+
+    .right {
+      flex: 1;
+      h1 {
+        text-align: center;
+      }
+    }
+  }
+}

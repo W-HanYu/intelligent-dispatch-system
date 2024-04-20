@@ -1,0 +1,68 @@
+/* SelectAlgorithms.css */
+
+.algorithm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &_title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  &_params {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 1rem;
+
+    .param-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+
+      span,
+      .ant-input {
+        width: 100px; // 示例宽度，可根据实际需求调整
+      }
+    }
+
+    .param-row > span {
+      color: #666;
+    }
+
+    .btn {
+      display: flex;
+      // justify-content: space-between;
+      gap: 5rem;
+      // width: 120px;
+      justify-content: center;
+      text-align: center;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &.calculate-data-btn {
+        background-color: #007bff;
+        color: white;
+
+        &:hover {
+          background-color: darken(#007bff, 10%);
+        }
+      }
+
+      &.upload-data-btn {
+        background-color: #28a745;
+        color: white;
+
+        &:hover {
+          background-color: darken(#28a745, 10%);
+        }
+      }
+    }
+  }
+}
+
+/* 其他自定义样式，如输入框、段落等 */
