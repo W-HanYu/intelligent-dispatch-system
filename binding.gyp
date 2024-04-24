@@ -4,9 +4,9 @@
         "cflags!": [ "-fno-exceptions" ],
         "cflags_cc!": [ "-fno-exceptions" ],
         "sources": [
-            "./cppsrc/main.cpp",
-            "./cppsrc/Samples/actualclass.cpp",
-            "./cppsrc/Samples/nodeAddons.cpp"
+            "./intelligent-dispatch-algorithm/main.cpp",
+            "./intelligent-dispatch-algorithm/src/actualclass.cpp",
+            "./intelligent-dispatch-algorithm/src/nodeAddons.cpp"
         ],
         'include_dirs': [
              "<!@(node -p \"require('node-addon-api').include\")"

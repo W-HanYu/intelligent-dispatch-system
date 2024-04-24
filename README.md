@@ -9,7 +9,7 @@
 [intelligent-dispatch-system-backend](./intelligent-dispatch-system-backend/)
 技术栈：Node、Nestjs、Mysql
 ### 算法
-[cppsrc](./cppsrc/)
+[intelligent-dispatch-system-algorithm](./intelligent-dispatch-system-algorithm/)
 
 
 ## 项目运行
