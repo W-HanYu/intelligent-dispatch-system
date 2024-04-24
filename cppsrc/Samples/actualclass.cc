@@ -11,11 +11,8 @@ License: GPLv2
 #include <random>
 using namespace std;
 
-
-
- Instance Solution::ins1 = Instance();
- RandomNumber Solution::r = RandomNumber();
-
+Instance Solution::ins1 = Instance();
+RandomNumber Solution::r = RandomNumber();
 
 Instance::Instance(const string & filename)
 {
@@ -2204,23 +2201,9 @@ void TS::show_cycle(int i)
 
 }
 
-
-
-
-
 int main(){
 
-
 }
-
-
-
-
-
-
-
-
-
 
 ActualClass::ActualClass(double value){
 
@@ -2241,46 +2224,26 @@ ifstream infile("input.txt");
 	Instance ins1("MK01.fjs");
 	cout << "成功"<<endl;
 
-if (num[0] == 10001)
-	{
-		DWORD start_time = GetTickCount();
+if (num[0] == 10001){
+  uint64_t start_time = mach_absolute_time();
+	GA ga(ins1, num[1], num[2], num[3], num[4], num[5], num[6]);
+	ga.initialize_mode1();
+	ga.run_mode1();
+	ga.show_best(0);
 
 
-		GA ga(ins1, num[1], num[2], num[3], num[4], num[5], num[6]);
-		ga.initialize_mode1();
-		ga.run_mode1();
-		ga.show_best(0);
-
-
-
-		ofstream outfile;                          //@
-		outfile.open("output.txt", ios::app);          //@
-
-
-		DWORD end_time = GetTickCount();
+		ofstream outfile;
+		outfile.open("output.txt", ios::app);
+    uint64_t end_time = mach_absolute_time();
 		cout << "The run time is:" << (end_time - start_time) << "ms!" << endl;
-
-
 		outfile << '*' << end_time - start_time << '#'<< num[1] << '#' << num[2] << '#' << num[3] << '#' << num[4] << '#' << num[5] << '#' << num[6] << '*';   //@
 		outfile.close();    //@
 
 	}
 	else
 		cout << "statistics wrong"<<endl ;
-
-
-
-
-
-
-
-	if (num[7] == 10002)
-	{
-
-		DWORD start_time = GetTickCount();
-
-
-
+	if (num[7] == 10002){
+		uint64_t start_time = mach_absolute_time();
 		PSO pso(num[8], num[9]);
 		pso.initialize(ins1);
 		pso.run_mode1();
@@ -2289,14 +2252,8 @@ if (num[0] == 10001)
 
 		ofstream outfile;                          //@
 		outfile.open("output.txt", ios::app);          //@
-
-
-
-		DWORD end_time = GetTickCount();
+    uint64_t end_time = mach_absolute_time();
 		cout << "The run time is:" << (end_time - start_time) << "ms!" << endl;
-
-
-
 		outfile << '*' << end_time - start_time << '#' << num[8] << '#' << num[9] << '*';   //@
 		outfile.close();    //@
 
@@ -2305,31 +2262,17 @@ if (num[0] == 10001)
 	else
 		cout << "statistics wrong" << endl;
 
-	if (num[10] == 10003)
-	{
+	if (num[10] == 10003){
 
-
-		DWORD start_time = GetTickCount();
-
-
+		uint64_t start_time = mach_absolute_time();
 		SAA saa(num[11], num[12], num[13], num[14]);
 		saa.initialize(ins1);
 		saa.run_mode1();
 		saa.show_best(1);
-
-
 		ofstream outfile;                          //@
 		outfile.open("output.txt", ios::app);
-
-
-
-
-
-		DWORD end_time = GetTickCount();
+		uint64_t end_time = mach_absolute_time();
 		cout << "The run time is:" << (end_time - start_time) << "ms!" << endl;
-
-
-
 
 		outfile << '*' << end_time - start_time << '#' << num[11] << '#' << num[12] << '#' << num[13] << '#' << num[14] << '*';   //@
 		outfile.close();    //@
@@ -2337,40 +2280,24 @@ if (num[0] == 10001)
 	else
 		cout << "statistics wrong" << endl;
 
-	if (num[15] == 10004)
-	{
+	if (num[15] == 10004){
 
-		DWORD start_time = GetTickCount();
-
-
+		uint64_t start_time = mach_absolute_time();
 		TS ts(num[16], num[17], num[18]);
 		ts.initialize(ins1);
 		ts.run_mode1(num[19]);
 		ts.show_best(1);
-
-
-
 		ofstream outfile;                          //@
 		outfile.open("output.txt", ios::app);          //@
-
-
-
-		DWORD end_time = GetTickCount();
+		uint64_t end_time = mach_absolute_time();
 		cout << "The run time is:" << (end_time - start_time) << "ms!" << endl;
-
-
 
 		outfile << '*' << end_time - start_time << '#' << num[16] << '#' << num[17] << '#' << num[18] << '#' << num[19] <<'*';   //@
 		outfile.close();    //@
 	}
 	else
 		cout << "statistics wrong" << endl;
-
-
-
-
-
-  return this->value_;
+    return this->value_;
 }
 
 double ActualClass::add(double toAdd)
@@ -2378,6 +2305,4 @@ double ActualClass::add(double toAdd)
   this->value_ += toAdd;
   return this->value_;
 }
-
-
 /* Author(s): Chris Johnson (chrisjohn404) */
