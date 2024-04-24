@@ -14,8 +14,7 @@ using namespace std;
 Instance Solution::ins1 = Instance();
 RandomNumber Solution::r = RandomNumber();
 
-Instance::Instance(const string & filename)
-{
+Instance::Instance(const string & filename){
 	ifstream ifs;
 	ifs.open(filename, ios::in);
 	string temp;
@@ -28,8 +27,7 @@ Instance::Instance(const string & filename)
 	line >> avg_ma;
 	//gantt_message.resize(mNumber + 1);
 	int work = 1;
-	while (work <= work_num && ifs.eof() == 0)
-	{
+	while (work <= work_num && ifs.eof() == 0){
 		getline(ifs, temp);
 		istringstream line(temp);
 		int job = 0;
@@ -50,15 +48,12 @@ Instance::Instance(const string & filename)
 	}
 }
 
-void Instance::print_Instance()
-{
+void Instance::print_Instance(){
 	cout << work_num << "\t" << machine_num << "\t" << avg_ma << endl;
 	int i = 0;
-	for (auto it = message.begin(); it != message.end(); it++)
-	{
+	for (auto it = message.begin(); it != message.end(); it++){
 		cout << "gongjian" << ++i << ": " << endl;
-		for (auto vit = (*it).begin(); vit != (*it).end(); vit++)
-		{
+		for (auto vit = (*it).begin(); vit != (*it).end(); vit++){
 			for (auto vvit = (*vit).begin(); vvit != (*vit).end(); vvit++)
 				cout << "(" << vvit->first << "," << vvit->second << ")  ";
 			cout << endl;
@@ -66,41 +61,32 @@ void Instance::print_Instance()
 	}
 }
 
-RandomNumber::RandomNumber()
-{
+RandomNumber::RandomNumber(){
 	srand((unsigned)time(NULL));
 }
 
-double RandomNumber::getRandomD(double a, double b)
-{
-	if (b < a)
-	{
+double RandomNumber::getRandomD(double a, double b){
+	if (b < a){
 		cout << "cuowu" << endl;
 		return -1;
 	}
 	return (rand() % 10000) / 10000.0 * (b - a) + a;
 }
 
-int RandomNumber::getRandomI(int a, int b)
-{
-	if (b < a)
-	{
+int RandomNumber::getRandomI(int a, int b){
+	if (b < a){
 		cout << "cuowu" << endl;
 		return -1;
 	}
 	return rand() % (b - a + 1) + a;
 }
 
-vector<int> RandomNumber::get_n_diff(int a, int b, int n)
-{
+vector<int> RandomNumber::get_n_diff(int a, int b, int n){
 	vector<int> temp;
-	for (int i = 0; i < n; ++i)
-	{
-		while (true)
-		{
+	for (int i = 0; i < n; ++i){
+		while (true){
 			int tmp = getRandomI(a, b);
-			if (find(temp.begin(), temp.end(), tmp) == temp.end())
-			{
+			if (find(temp.begin(), temp.end(), tmp) == temp.end()){
 				temp.push_back(tmp); break;
 			}
 		}
@@ -108,8 +94,7 @@ vector<int> RandomNumber::get_n_diff(int a, int b, int n)
 	return temp;
 }
 
-Solution::Solution(vector<int>& job_s, vector<vector<int>>& machine_s)
-{
+Solution::Solution(vector<int>& job_s, vector<vector<int>>& machine_s){
 	set_arg(job_s, machine_s);
 
 	const int len = (int)job_s.size();
@@ -118,8 +103,7 @@ Solution::Solution(vector<int>& job_s, vector<vector<int>>& machine_s)
 
 }
 
-void Solution::get_gantt(vector<int>& job_s, vector<vector<int>>& machine_s)
-{
+void Solution::get_gantt(vector<int>& job_s, vector<vector<int>>& machine_s){
 	auto mess = ins1.message;
 
 	vector<vector<shared_ptr<Node>>> help(ins1.work_num + 1, vector<shared_ptr<Node>>(1, shared_ptr<Node>(new Node())));
@@ -140,16 +124,14 @@ void Solution::get_gantt(vector<int>& job_s, vector<vector<int>>& machine_s)
 		auto it_l = gantt[machine].begin();
 		auto it_r = it_l;
 		++it_r;
-		for (; it_r != gantt[machine].end(); ++it_r, ++it_l)
-		{
+		for (; it_r != gantt[machine].end(); ++it_r, ++it_l){
 			shared_ptr<Node> left = *it_l;
 			shared_ptr<Node> right = *it_r;
 			double start = left->finish_time;
 			double finish = right->start_time;
 
 			double beg = max(pre_finish_time, start);
-			if (finish - beg >= time)
-			{
+			if (finish - beg >= time){
 				creat_node->start_time = beg;
 				creat_node->finish_time = beg + time;
 				(*it_l)->mNext = creat_node;
@@ -159,8 +141,7 @@ void Solution::get_gantt(vector<int>& job_s, vector<vector<int>>& machine_s)
 				break;
 			}
 		}
-		if (it_r == gantt[machine].end())
-		{
+		if (it_r == gantt[machine].end()){
 			creat_node->start_time = max((*it_l)->finish_time, pre_finish_time);
 			creat_node->finish_time = creat_node->start_time + time;
 			(*it_l)->mNext = creat_node;
@@ -176,11 +157,9 @@ void Solution::get_gantt(vector<int>& job_s, vector<vector<int>>& machine_s)
 	}
 }
 
-void Solution::set_makespan()
-{
+void Solution::set_makespan(){
 	double t = 0.0;
-	for (int i = 1; i <= ins1.machine_num; ++i)
-	{
+	for (int i = 1; i <= ins1.machine_num; ++i){
 		double temp = (gantt[i].back())->finish_time;
 		if (t < temp)t = temp;
 	}
@@ -192,22 +171,19 @@ void Solution::set_fitness()
 	fitness = 1.0 / makespan;
 }
 
-void Solution::show_gantt(int mode)
-{
+void Solution::show_gantt(int mode){
 
-	ofstream outfile;               //@
+	ofstream outfile;
 	if (mode == 0)
-	outfile.open("output.txt");//@
+	outfile.open("output.txt");
 	if (mode == 1)
-	outfile.open("output.txt", ios::app);//@
+	outfile.open("output.txt", ios::app);
 
 
 	int j = 0;
-	for (auto& i : gantt)
-	{
+	for (auto& i : gantt){
 
-		for (auto it = i.begin(); it != i.end(); ++it)
-		{
+		for (auto it = i.begin(); it != i.end(); ++it){
 			int work = (*it)->work;
 			ins1.works.push_back(work);
 			ins1.start_times.push_back((*it)->start_time);
@@ -215,20 +191,16 @@ void Solution::show_gantt(int mode)
 			ins1.machines.push_back(j);
 			double time = (*it)->finish_time - (*it)->start_time;
 			while (time--) {
-				if (work == 10)
-				{
+				if (work == 10){
 					cout << 'A';
-					outfile << 'A';//@
-				}
-				else
-				{
+					outfile << 'A';
+				}else{
 					cout << work;
-					outfile << work;//@
+					outfile << work;
 				}
 			}
 			shared_ptr<Node> shared_ptr_it = ((*it)->mNext).lock();
-			if (shared_ptr_it)
-			{
+			if (shared_ptr_it){
 				double time = shared_ptr_it->start_time - (*it)->finish_time;
 				while (time--) {
 					cout << "0";
@@ -245,12 +217,7 @@ void Solution::show_gantt(int mode)
 }
 
 
-
-
-
-
-void Solution::show_job_gene()
-{
+void Solution::show_job_gene(){
 	for (int i : job_gene) cout << i << " ";
 	cout << endl;
 }
@@ -265,8 +232,7 @@ void Solution::show_machine_gene()
 	}
 }
 
-void Solution::set_arg(vector<int>& job_s, vector<vector<int>>& machine_s)
-{
+void Solution::set_arg(vector<int>& job_s, vector<vector<int>>& machine_s){
 	job_gene = job_s;
 	machine_gene = machine_s;
 	get_gantt(job_s, machine_s);
@@ -274,16 +240,14 @@ void Solution::set_arg(vector<int>& job_s, vector<vector<int>>& machine_s)
 	set_fitness();
 }
 
-void Solution::print_gantt(string file_name)
-{
+void Solution::print_gantt(string file_name){
 	ofstream outfile;
 	outfile.open(file_name + ".txt");
 	outfile << "gantt ruxia: ";
 	int j = 0;
 	for (auto& i : gantt)
 	{
-		for (auto it = i.begin(); it != i.end(); ++it)
-		{
+		for (auto it = i.begin(); it != i.end(); ++it){
 			int work = (*it)->work;
 			ins1.works.push_back(work);
 			ins1.start_times.push_back((*it)->start_time);
@@ -292,8 +256,7 @@ void Solution::print_gantt(string file_name)
 			double time = (*it)->finish_time - (*it)->start_time;
 			while (time--)outfile << work;
 			shared_ptr<Node> shared_ptr_it = ((*it)->mNext).lock();
-			if (shared_ptr_it)
-			{
+			if (shared_ptr_it){
 				double time = shared_ptr_it->start_time - (*it)->finish_time;
 				while (time--)outfile << " ";
 			}
@@ -305,8 +268,7 @@ void Solution::print_gantt(string file_name)
 	cout << "chengong gantt\"" << file_name + ".txt" << "\"zhong" << endl;
 }
 
-void Solution::print_gene(string file_name)
-{
+void Solution::print_gene(string file_name){
 	ofstream outfile;
 	outfile.open(file_name + ".txt");
 
@@ -315,8 +277,7 @@ void Solution::print_gene(string file_name)
 	outfile << endl;
 
 	outfile << "jiqixulie: " << endl;
-	for (int i = 1; i < (int)machine_gene.size(); ++i)
-	{
+	for (int i = 1; i < (int)machine_gene.size(); ++i){
 		for (int j = 1; j < (int)machine_gene[i].size(); ++j)
 			outfile << machine_gene[i][j] << " ";
 		outfile << endl;
@@ -419,8 +380,7 @@ Solution Solution::search_job_neigh(int work1, int job1, int work2, int job2)
 	return jobNeigh;
 }
 
-Solution Solution::search_mac_neigh(int work, int job, int machine)
-{
+Solution Solution::search_mac_neigh(int work, int job, int machine){
 	vector<int> job_gene = (*this).job_gene;
 	vector<vector<int>> machine_gene = (*this).machine_gene;
 	machine_gene[work][job] = machine;
@@ -428,22 +388,19 @@ Solution Solution::search_mac_neigh(int work, int job, int machine)
 	return macNeigh;
 }
 
-GA::GA(Instance _Ins, int _MaxCycle)
-{
+GA::GA(Instance _Ins, int _MaxCycle){
 	this->ins = _Ins;
 	PS = 10 * (ins.work_num + ins.machine_num);
 	maxCycle = _MaxCycle;
 }
 
-GA::GA(string _Filename, int _MaxCycle)
-{
+GA::GA(string _Filename, int _MaxCycle){
 	this->ins = Instance(_Filename);
 	PS = 10 * (ins.work_num + ins.machine_num);
 	maxCycle = _MaxCycle;
 }
 
-void GA::initialize_mode1()
-{
+void GA::initialize_mode1(){
 	if (oddCheck())
 		cout << "yixiuzheng" << endl;
 	best_Individual.set_instance(ins);
@@ -527,18 +484,15 @@ void GA::initialize_mode2()
 		mt19937 rng(rd());
 		shuffle(temp_job.begin(), temp_job.end(), rng);
 		//random_shuffle(temp_job.begin(), temp_job.end());
-		for (int w = 1; w < work; ++w)
-		{
-			for (int j = 1; j < (int)ins.message[w].size(); ++j)
-			{
+		for (int w = 1; w < work; ++w){
+			for (int j = 1; j < (int)ins.message[w].size(); ++j){
 				int machine = ins.message[w][j].size();
 				vector<int> temp;
 				auto b = ins.message[w][j].begin();
 				auto e = ins.message[w][j].end();
 				for (; b != e; ++b)temp.push_back(b->first);
 
-				for (int m = 0; m < machine; ++m)
-				{
+				for (int m = 0; m < machine; ++m){
 					int ri = r.getRandomI(0, machine - 1);
 					temp_machine[w][j] = temp[ri];
 				}
@@ -550,8 +504,7 @@ void GA::initialize_mode2()
 	searchBestSource();
 }
 
-void GA::initialize_mode2(int _PS)
-{
+void GA::initialize_mode2(int _PS){
 	best_Individual.set_instance(ins);
 	PS = _PS;
 	if (oddCheck())
@@ -582,10 +535,8 @@ void GA::initialize_mode2(int _PS)
 		mt19937 rng(rd());
 		shuffle(temp_job.begin(), temp_job.end(), rng);
 		//random_shuffle(temp_job.begin(), temp_job.end());
-		for (int w = 1; w < work; ++w)
-		{
-			for (int j = 1; j < (int)ins.message[w].size(); ++j)
-			{
+		for (int w = 1; w < work; ++w){
+			for (int j = 1; j < (int)ins.message[w].size(); ++j){
 				int machine = ins.message[w][j].size();
 				vector<int> temp;
 				auto b = ins.message[w][j].begin();
