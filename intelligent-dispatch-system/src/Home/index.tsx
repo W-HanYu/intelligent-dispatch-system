@@ -70,7 +70,6 @@ const SchedulerSystem = () => {
                 checkedChildren="上传文件"
                 unCheckedChildren="手动输入"
               />
-              {/* 根据用户选择显示相应的输入组件 */}
               {isManualInput ? (
                 <MultiTextInput
                   label="请输入数据（每行一条）"
@@ -87,6 +86,10 @@ const SchedulerSystem = () => {
         </div>
         <div className="right">
           <h1>算法效果展示与比较</h1>
+          <div className="algorithm_compare">算法对比图
+              
+          </div>
+          <div className="gantt_chart">获取甘特图</div>
         </div>
       </div>
     </div>

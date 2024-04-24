@@ -53,8 +53,12 @@
 
     .right {
       flex: 1;
+      margin-left: 40px;
       h1 {
         text-align: center;
+      }
+      .algorithm_compare {
+        height: 40%;
       }
     }
   }
