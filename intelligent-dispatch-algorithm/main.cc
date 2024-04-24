@@ -1,5 +1,5 @@
 #include <napi.h>
-#include "Samples/nodeAddons.h"
+#include "src/nodeAddons.h"
 
 Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
 

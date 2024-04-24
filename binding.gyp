@@ -4,9 +4,9 @@
         "cflags!": [ "-fno-exceptions" ],
         "cflags_cc!": [ "-fno-exceptions" ],
         "sources": [
-            "./intelligent-dispatch-algorithm/main.cpp",
-            "./intelligent-dispatch-algorithm/src/actualclass.cpp",
-            "./intelligent-dispatch-algorithm/src/nodeAddons.cpp"
+            "./intelligent-dispatch-algorithm/main.cc",
+            "./intelligent-dispatch-algorithm/src/actualclass.cc",
+            "./intelligent-dispatch-algorithm/src/nodeAddons.cc"
         ],
         'include_dirs': [
              "<!@(node -p \"require('node-addon-api').include\")"
