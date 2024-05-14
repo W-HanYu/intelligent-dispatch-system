@@ -5,7 +5,7 @@ July 2022
 License: GPLv2
 */
 
-#include "actualclass.h"
+#include "algorithms.h"
 #include <math.h>
 #include <string>
 #include <random>

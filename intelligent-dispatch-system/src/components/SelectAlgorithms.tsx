@@ -22,19 +22,19 @@ type PredefinedAlgorithmParams = {
     最好基因保留概率: string;
     交叉对数: string;
   };
-  jinji: {
+  lizi: {
     算例规模工件数量X机器数量: string;
     粒子偏移概率: string;
     每次改变点位数: string;
   };
-  lizi: {
+  tuihuo: {
     算例规模工件数量X机器数量: string;
     本次模拟退火由初始温度: string;
     到终止温度: string;
     温度下降速率: string;
     等温过程迭代次数: string;
   };
-  tuihuo: {
+  jinji: {
     算例规模工件数量X机器数量: string;
     禁忌长度: string;
     单次生成工序邻域数量: string;
@@ -88,19 +88,19 @@ const SelectAlgorithms: React.FC = () => {
         最好基因保留概率: "0.02",
         交叉对数: "4",
       },
-      jinji: {
+      lizi: {
         算例规模工件数量X机器数量: "10*6",
         粒子偏移概率: "0.3",
         每次改变点位数: "1",
       },
-      lizi: {
+      tuihuo: {
         算例规模工件数量X机器数量: "10*6",
         本次模拟退火由初始温度: "1000",
         到终止温度: "10",
         温度下降速率: "0.95",
         等温过程迭代次数: "20",
       },
-      tuihuo: {
+      jinji: {
         算例规模工件数量X机器数量: "10*6",
         禁忌长度: "30",
         单次生成工序邻域数量: "20",
@@ -166,7 +166,7 @@ const SelectAlgorithms: React.FC = () => {
     ]);
     setPredefinedParams({
       ...predefinedParams,
-      
+
       [name.toLowerCase().replace(/\s/g, "")]: params,
     });
     setSelected(false);

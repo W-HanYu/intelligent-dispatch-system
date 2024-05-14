@@ -2,18 +2,17 @@ import axios, { AxiosRequestConfig } from "axios";
 import { RegisterUser } from "./components/Register";
 import { message } from "antd";
 
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:3005/",
-
-  timeout: 3000,
-});
-
 interface PendingTask {
   config: AxiosRequestConfig;
   resolve: Function;
 }
 let refreshing = false;
 const queue: PendingTask[] = [];
+
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:3005/",
+  timeout: 3000,
+});
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -49,11 +48,8 @@ axiosInstance.interceptors.response.use(
 
     if (data.code === 401 && !config.url.includes("/user/refresh")) {
       refreshing = true;
-
       const res = await refreshToken();
-
       refreshing = false;
-
       if (res.status === 200 || res.status === 201 || res.status === 304) {
         queue.forEach(({ config, resolve }) => {
           resolve(axiosInstance(config));

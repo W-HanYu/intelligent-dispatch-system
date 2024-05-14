@@ -67,10 +67,7 @@ export class UserController {
   @Get('register-captcha')
   async captcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
-    console.log('address', address);
-
     await this.redisService.set(`captcha_${address}`, code, 60 * 5);
-
     await this.emailService.sendMail({
       to: address,
       subject: '用户注册验证码',
@@ -83,14 +80,12 @@ export class UserController {
   @Post('register')
   async register(@Body() registerUser: RegisterUserDto) {
     return await this.userService.register(registerUser);
-    // return 'register success';
   }
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
     const vo = await this.userService.login(loginUserDto);
     vo.accessToken = await this.generateAccessToken(vo.userInfo);
-
     vo.refreshToken = await this.generateRefreshToken(vo.userInfo);
     return vo;
   }
