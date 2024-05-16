@@ -27,9 +27,9 @@ const props: CustomUploadProps = {
       console.log(info.file, info.fileList);
     }
     if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
+      message.success(`${info.file.name} 文件上传成功.`);
     } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
+      message.error(`${info.file.name} 文件上传失败.`);
     }
   },
   onDrop(e) {
@@ -40,14 +40,13 @@ const props: CustomUploadProps = {
   // 假设的文件类型检查函数调用
   beforeUpload(file) {
     if (!props.onFileTypeCheck(file)) {
-      message.error("Unsupported file type. Only txt files are allowed.");
+      message.error("文件类型错误,仅支持txt文件");
       return false;
     }
     return true;
   },
-  onFileTypeCheck(file) {
-    const fileType = file.type;
-    return fileType === "text/plain";
+  onFileTypeCheck(file){
+    return file.type === "text/plain"
   },
   onUpdateFileList(fileList) {
     console.log("File list updated:", fileList);

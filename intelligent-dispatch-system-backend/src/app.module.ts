@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { LoginGuard } from './login.guard';
+import { UploadCustomAlgorithmModule } from './uploadCustomAlgorithm/uploadCustomAlgorithm.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { LoginGuard } from './login.guard';
       inject: [ConfigService],
     }),
     EmailModule,
+    UploadCustomAlgorithmModule,
   ],
   controllers: [AppController],
   providers: [

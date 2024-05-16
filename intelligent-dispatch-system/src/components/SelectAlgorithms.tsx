@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Select, Input, Typography, Button, Form, InputNumber } from "antd";
 import "./index.scss";
+import Modal from "./Modal";
+import FileUploadModal from "./FileUploadModal";
 
 interface Option {
   value: string;
@@ -53,7 +55,13 @@ const SelectAlgorithms: React.FC = () => {
       name: string;
       value: string | number;
     }[]
-  >([{ name: "", value: "" }]);
+  >([
+    {
+      name: "算例规模工件数量X机器数量",
+      value: "10*6",
+    },
+    { name: "", value: "" },
+  ]);
   const [options, setOptions] = useState<Option[]>([
     {
       value: "yichuan",
@@ -109,6 +117,28 @@ const SelectAlgorithms: React.FC = () => {
       },
     });
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const openModal = () => setIsModalVisible(true);
+
+  const handleCloseModal = () => setIsModalVisible(false);
+
+  const handleFileRead = (event: ProgressEvent<FileReader>) => {
+    if (event.target && event.target.result) {
+      handleCloseModal();
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      const fileReader = new FileReader();
+      fileReader.onload = handleFileRead;
+      fileReader.onerror = () =>
+        console.error("Error occurred while reading the file.");
+      fileReader.readAsText(selectedFile);
+    }
+  };
+
   const onChange = (value: string) => {
     setSelected(true);
 
@@ -141,7 +171,6 @@ const SelectAlgorithms: React.FC = () => {
   const handleAddParameter = (): void => {
     setCustomParameters((prevParameters) => [
       ...prevParameters,
-      // { name: `参数 ${prevParameters.length + 1}`, value: "" },
       { name: "", value: "" },
     ]);
   };
@@ -166,7 +195,6 @@ const SelectAlgorithms: React.FC = () => {
     ]);
     setPredefinedParams({
       ...predefinedParams,
-
       [name.toLowerCase().replace(/\s/g, "")]: params,
     });
     setSelected(false);
@@ -177,7 +205,7 @@ const SelectAlgorithms: React.FC = () => {
       <div className="algorithm_title">请选择调度优化算法</div>
       <Select
         showSearch
-        placeholder="请选择算法或者可自定义算法"
+        placeholder="点击选择或可自定义算法"
         optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
@@ -275,26 +303,34 @@ const SelectAlgorithms: React.FC = () => {
                 <Button type="primary" onClick={handleAddParameter}>
                   添加参数
                 </Button>
+                <Button type="primary" onClick={openModal}>
+                  上传算法文件
+                </Button>
                 <Button
                   type="primary"
                   className="add-data-btn"
-                  onClick={() =>
+                  onClick={() => {
                     handleAddAlgorithm(
                       customAlgorithmName,
                       customParameters.reduce((acc, curr) => {
                         acc[curr.name] = curr.value;
                         return acc;
                       }, {} as AlgorithmParams)
-                    )
-                  }
+                    );
+                  }}
                 >
-                  添加自定义算法
+                  添加算法
                 </Button>
               </div>
             </>
           )}
         </div>
       )}
+      <FileUploadModal
+        show={isModalVisible}
+        handleClose={handleCloseModal}
+        handleFileUpload={handleFileUpload}
+      />
     </div>
   );
 };

@@ -1,18 +1,44 @@
 import { UserOutlined } from "@ant-design/icons";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import "./index.scss";
-import { Avatar, Dropdown, Menu, Space, Switch, Input } from "antd";
+import { Avatar, Dropdown, Menu, Space, Switch, message, Tooltip } from "antd";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
-import imgUrl from "../logo.png";
-import lzqPng from "../Assets/lzq.png"
 import * as echarts from "echarts";
 import UploadFile from "../components/UploadFile";
 import SelectAlgorithms from "../components/SelectAlgorithms";
 import MultiTextInput from "../components/MultiTextInput";
 import { debounce } from "../utils";
 
+const getItemStyle = (opacity = 1) => ({
+  barBorderRadius: 5,
+  borderWidth: 1,
+  borderType: "solid",
+  borderColor: "#73c0de",
+  shadowColor: "#5470c6",
+  shadowBlur: 3,
+  opacity,
+});
+
+const generateChartOption = (
+  chartTitle: string,
+  xAxisData: string[],
+  data: any
+) => ({
+  title: { text: chartTitle, top: "top" },
+  xAxis: { data: xAxisData },
+  yAxis: {},
+  series: [
+    {
+      type: "bar",
+      data: data,
+      itemStyle: getItemStyle(),
+    },
+  ],
+});
+
 const SchedulerSystem = () => {
-  const [isManualInput, setIsManualInput] = useState(false);
+  const [isManualInput, setIsManualInput] = useState(true);
   const [geneticsData, setGeneticsData] = useState<number>(8200);
   const chart1Ref = useRef(null);
   const chart2Ref = useRef(null);
@@ -20,15 +46,56 @@ const SchedulerSystem = () => {
     console.log("Manual input values:", values);
     // 处理手动输入的数据
   };
+  const [data, setData] = useState([
+    {
+      name: "遗传",
+      optimalSolutionValue: 42,
+      calculatedTimeValue: 9031,
+      color: "#132cff",
+    },
+    {
+      name: "禁忌",
+      optimalSolutionValue: 46,
+      calculatedTimeValue: 1515,
+      color: "#ff131f",
+    },
+    {
+      name: "粒子群优化",
+      optimalSolutionValue: 83,
+      calculatedTimeValue: 172,
+      color: "#91cc75",
+    },
+    {
+      name: "模拟退火",
+      optimalSolutionValue: 58,
+      calculatedTimeValue: 313,
+      color: "#f00726",
+    },
+  ]);
+
+  const xAxisData = data.map((item) => {
+    return item.name;
+  });
 
   const handleFileUpload = (file: File) => {
     console.log("Uploaded file:", file);
+    const isTxt = handleOnFileTypeCheck(file);
+    if (!isTxt) {
+      message.error("文件类型错误,仅支持txt文件");
+    } else {
+      message.success("文件上传成功");
+    }
     // 处理上传的文件
   };
 
   const handleOnFileTypeCheck = (fileType: File): boolean => {
     console.log("File type:", fileType);
-    return true;
+    if (fileType.type === "text/plain") {
+      return true;
+    } else {
+      message.error("文件类型错误,仅支持txt文件");
+      return false;
+    }
     // 处理文件类型的选择
   };
   const [headPicSrc, setHeadPicSrc] = useState(
@@ -43,7 +110,7 @@ const SchedulerSystem = () => {
         <Link
           to="/login"
           onClick={() => {
-            localStorage.removeItem("access_token");
+            sessionStorage.removeItem("access_token");
           }}
         >
           退出登录
@@ -52,159 +119,58 @@ const SchedulerSystem = () => {
     </Menu>
   );
 
-  const initEChart1 = () => {
-    const myChart = echarts.init(chart1Ref.current);
+  // 初始化图表的函数
+  const initChart = (ref: any, option: any) => {
+    const myChart = echarts.init(ref.current);
     myChart.clear();
-    let option;
-    option = {
-      xAxis: {
-        data: ["遗传", "禁忌", "粒子群优化", "模拟退火"],
-      },
-      yAxis: {},
-      series: [
-        {
-          type: "bar",
-          data: [
-            {
-              value: 42,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#132cff",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                // opacity: 0.5,
-              },
-            },
-            {
-              value: 45,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#ff131f",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                // opacity: 0.5,
-              },
-            },
-            {
-              value: 51,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#91cc75",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                opacity: 0.5,
-              },
-            },
-            {
-              value: 48,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#f00726",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                opacity: 0.5,
-              },
-            },
-            49,
-          ],
-          itemStyle: {
-            barBorderRadius: 5,
-            borderWidth: 1,
-            borderType: "solid",
-            borderColor: "#73c0de",
-            shadowColor: "#5470c6",
-            shadowBlur: 3,
-          },
-        },
-      ],
-      title: {
-        text: "最优解柱状图",
-        top: "top",
-      },
-    };
-    option && myChart.setOption(option);
+    myChart.setOption(option);
+    // 组件卸载时释放资源
+    return () => myChart.dispose();
   };
-  const initEChart2 = () => {
-    const myChart = echarts.init(chart2Ref.current);
-    myChart.clear();
-    let option;
-    option = {
-      xAxis: {
-        data: ["遗传", "禁忌", "粒子群优化", "模拟退火"],
-      },
-      yAxis: {},
-      series: [
-        {
-          type: "bar",
-          data: [
-            {
-              value: 6800,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#132cff",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                // opacity: 0.5,
-              },
-            },
-            {
-              value: 2200,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#ff131f",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                // opacity: 0.5,
-              },
-            },
-            {
-              value: 2500,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#91cc75",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                opacity: 0.5,
-              },
-            },
-            {
-              value: 2350,
-              // 设置单个柱子的样式
-              itemStyle: {
-                color: "#f00726",
-                shadowColor: "#91cc75",
-                borderType: "dashed",
-                opacity: 0.5,
-              },
-            },
-            49,
-          ],
-          itemStyle: {
-            barBorderRadius: 5,
-            borderWidth: 1,
-            borderType: "solid",
-            borderColor: "#73c0de",
-            shadowColor: "#5470c6",
-            shadowBlur: 3,
-          },
+
+  // 生成两个图表的配置
+  const chartOption1 = generateChartOption(
+    "最优解柱状图",
+    xAxisData, // 假设 xAxisData 已经定义
+    data.map((item, index) => {
+      return {
+        value: item.optimalSolutionValue,
+        itemStyle: {
+          color: item.color,
+          shadowColor: "#91cc75",
+          borderType: "dashed",
+          opacity: index >= 2 ? 0.5 : 1,
         },
-      ],
-      title: {
-        text: "算法计算时间 单位/ms",
-        top: "top",
-      },
-    };
-    option && myChart.setOption(option);
-  };
+      };
+    })
+  );
+  const chartOption2 = generateChartOption(
+    "算法计算时间 单位/ms",
+    xAxisData,
+    data.map((item, index) => {
+      return {
+        value: item.calculatedTimeValue,
+        itemStyle: {
+          color: item.color,
+          shadowColor: "#91cc75",
+          borderType: "dashed",
+          opacity: index >= 2 ? 0.5 : 1,
+        },
+      };
+    })
+  );
+
   useEffect(() => {
-    initEChart1();
-    initEChart2();
+    Promise.all([
+      initChart(chart1Ref, chartOption1),
+      initChart(chart2Ref, chartOption2),
+    ]);
   }, []);
   return (
     <div id="index-container">
       <div className="header">
         <div className="left">
-          <img src={imgUrl} className="logo" />
+          <img src={require("../logo.png")} className="logo" />
           <span className="title_name">智能调度系统</span>
         </div>
 
@@ -227,12 +193,24 @@ const SchedulerSystem = () => {
               <Switch
                 checked={isManualInput}
                 onChange={(checked) => setIsManualInput(checked)}
-                checkedChildren="上传文件"
-                unCheckedChildren="手动输入"
+                checkedChildren="切换到文件拖拽上传"
+                unCheckedChildren="切换到多文本输入"
               />
+              <Tooltip
+                title={`参数输入规范：
+                1. 每一行代表一种算法和算法参数
+                2. 第一个参数为算法名称（必须是10001、10002、10003...这种格式
+                3.后续参数为算法参数，参数之间用空格分隔(仅限一个空格)
+                4. 多文本输入和txt文件拖拽上传一致`}
+                placement="right"
+              >
+                点击
+                <QuestionCircleOutlined />
+                查看参数输入规范
+              </Tooltip>
               {isManualInput ? (
                 <MultiTextInput
-                  label="请输入数据（每行一条）"
+                  label="多文本参数输入"
                   onChange={debounce(handleInputChange, 500)}
                 />
               ) : (
@@ -264,7 +242,7 @@ const SchedulerSystem = () => {
             ></div>
           </div>
           <div className="gantt_chart">获取甘特图</div>
-          <img src={lzqPng} alt="" width={900}/>
+          <img src={require("../Assets/lzq.png")} alt="" width={900} />
         </div>
       </div>
     </div>

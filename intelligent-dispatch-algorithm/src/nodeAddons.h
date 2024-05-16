@@ -6,7 +6,7 @@ License: GPLv2
 */
 
 #include <napi.h>
-#include "actualclass.h"
+#include "algorithms.h"
 
 class ClassExample : public Napi::ObjectWrap<ClassExample> {
  public:

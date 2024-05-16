@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("access_token");
+    const accessToken = sessionStorage.getItem("access_token");
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -92,8 +92,19 @@ export async function refreshToken() {
       refresh_token: localStorage.getItem("refresh_token"),
     },
   });
-  localStorage.setItem("access_token", res.data.access_token || "");
+  sessionStorage.setItem("access_token", res.data.access_token || "");
   localStorage.setItem("refresh_token", res.data.refresh_token || "");
-  console.log(res);
   return res;
+}
+
+
+export async function uploadCustomAlgorithm(file:File, algorithmName:string) {
+  const formData = new FormData();
+  formData.append("cppfile", file!);
+  formData.append("algorithmName", algorithmName);
+  return await axiosInstance.post("/uploadCustomAlgorithm", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
