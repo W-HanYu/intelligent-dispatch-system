@@ -14,11 +14,11 @@
 
 ## 项目运行
 ### 前端
-cd intelligent-dispatch-system
-npm install
-npm run start
+- cd intelligent-dispatch-system
+- npm install
+- npm run start
 
 ### 后端
-cd intelligent-dispatch-system-backend
-npm install
-npm run start
+- cd intelligent-dispatch-system-backend
+- npm install
+- npm run start
