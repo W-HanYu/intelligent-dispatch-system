@@ -10,6 +10,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { LoginGuard } from './login.guard';
 import { UploadCustomAlgorithmModule } from './uploadCustomAlgorithm/uploadCustomAlgorithm.module';
+import { AlgorithmsModule } from './algorithms/algorithms.module';
+import { Algorithm } from './algorithms/entities/algorithm.entity';
+import { PredefinedParam } from './algorithms/entities/predefined-param.entity';
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { UploadCustomAlgorithmModule } from './uploadCustomAlgorithm/uploadCusto
           database: configService.get('mysql_server_database'),
           synchronize: true,
           logging: true,
-          entities: [User],
+          entities: [User,Algorithm,PredefinedParam],
           poolSize: 10,
           connectorPackage: 'mysql2',
           extra: {
@@ -53,6 +56,7 @@ import { UploadCustomAlgorithmModule } from './uploadCustomAlgorithm/uploadCusto
     }),
     EmailModule,
     UploadCustomAlgorithmModule,
+    AlgorithmsModule
   ],
   controllers: [AppController],
   providers: [

@@ -108,3 +108,8 @@ export async function uploadCustomAlgorithm(file:File, algorithmName:string) {
     },
   });
 }
+
+
+export async function getAllAlgorithms(){
+  return await axiosInstance.get("/algorithms");
+}

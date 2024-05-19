@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { Select, Input, Typography, Button, Form, InputNumber } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { Select, Input, Typography, Button, message } from "antd";
 import "./index.scss";
-import Modal from "./Modal";
 import FileUploadModal from "./FileUploadModal";
+import { debounce } from "../utils";
+import { getAllAlgorithms } from "../interface";
 
 interface Option {
   value: string;
@@ -43,12 +44,18 @@ type PredefinedAlgorithmParams = {
     单次生成机器邻域数量: string;
     最大迭代次数: string;
   };
+  [algorithmName: string]: {
+    [paramName: string]: any;
+  };
 };
 
 const SelectAlgorithms: React.FC = () => {
   const [algorithmParams, setAlgorithmParams] =
     useState<AlgorithmParams | null>(null);
   const [selected, setSelected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [select_algorithm_name, setSelect_algorithm_name] =
+    useState<string>("");
   const [customAlgorithmName, setCustomAlgorithmName] = useState<string>("");
   const [customParameters, setCustomParameters] = useState<
     {
@@ -62,60 +69,10 @@ const SelectAlgorithms: React.FC = () => {
     },
     { name: "", value: "" },
   ]);
-  const [options, setOptions] = useState<Option[]>([
-    {
-      value: "yichuan",
-      label: "遗传算法",
-    },
-    {
-      value: "jinji",
-      label: "禁忌算法",
-    },
-    {
-      value: "lizi",
-      label: "粒子群优化算法",
-    },
-    {
-      value: "tuihuo",
-      label: "模拟退火算法",
-    },
-    {
-      value: "custom",
-      label: "自定义算法",
-    },
-  ]);
+  const [options, setOptions] = useState<Option[]>([]);
 
   const [predefinedParams, setPredefinedParams] =
-    useState<PredefinedAlgorithmParams>({
-      yichuan: {
-        算例规模工件数量X机器数量: "10*6",
-        终止条件: "30",
-        最优个体赋值比例: "0.3",
-        交叉概率: "0.6",
-        变异概率: "0.1",
-        最好基因保留概率: "0.02",
-        交叉对数: "4",
-      },
-      lizi: {
-        算例规模工件数量X机器数量: "10*6",
-        粒子偏移概率: "0.3",
-        每次改变点位数: "1",
-      },
-      tuihuo: {
-        算例规模工件数量X机器数量: "10*6",
-        本次模拟退火由初始温度: "1000",
-        到终止温度: "10",
-        温度下降速率: "0.95",
-        等温过程迭代次数: "20",
-      },
-      jinji: {
-        算例规模工件数量X机器数量: "10*6",
-        禁忌长度: "30",
-        单次生成工序邻域数量: "20",
-        单次生成机器邻域数量: "20",
-        最大迭代次数: "50",
-      },
-    });
+    useState<PredefinedAlgorithmParams>();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const openModal = () => setIsModalVisible(true);
@@ -134,39 +91,67 @@ const SelectAlgorithms: React.FC = () => {
       const fileReader = new FileReader();
       fileReader.onload = handleFileRead;
       fileReader.onerror = () =>
-        console.error("Error occurred while reading the file.");
+        message.error("Error occurred while reading the file.");
       fileReader.readAsText(selectedFile);
     }
   };
 
   const onChange = (value: string) => {
     setSelected(true);
-
+    setSelect_algorithm_name(value);
     if (value === "custom") {
       setAlgorithmParams(null);
       return;
     } else {
       setAlgorithmParams(
-        predefinedParams[value as keyof PredefinedAlgorithmParams]
+        predefinedParams![value as keyof PredefinedAlgorithmParams]
       );
-      setPredefinedParams(predefinedParams);
     }
   };
 
-  const onSearch = (value: string) => {
-    console.log("search:", value);
+  const onSearch = async () => {
+    setIsLoading(true);
+    try {
+      const res = await getAllAlgorithms();
+      const { data } = res.data;
+      const optionsArr = data.reduce((acc: Option[], cur: any) => {
+        acc.push({
+          value: cur.value,
+          label: cur.label,
+        });
+        return acc;
+      }, []);
+
+      const predefinedParams = data.reduce(
+        (acc: PredefinedAlgorithmParams, cur: any) => {
+          // Initialize an empty object for the current algorithm's parameters
+          acc[cur.value] = {};
+
+          // Populate the parameters for the current algorithm
+          cur.params.forEach((param: any) => {
+            acc[cur.value][param.param_name] = param.param_value;
+          });
+
+          return acc;
+        },
+        {}
+      );
+
+      setOptions(optionsArr);
+      setPredefinedParams(predefinedParams);
+      setAlgorithmParams(predefinedParams);
+      console.log("predefinedParams", predefinedParams);
+    } catch (error) {
+      console.error("Error fetching algorithms:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filterOption = (
     input: string,
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
-
-  const handleCustomAlgorithmNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCustomAlgorithmName(event.target.value);
-  };
 
   const handleAddParameter = (): void => {
     setCustomParameters((prevParameters) => [
@@ -194,11 +179,15 @@ const SelectAlgorithms: React.FC = () => {
       { value: name.toLowerCase().replace(/\s/g, ""), label: name },
     ]);
     setPredefinedParams({
-      ...predefinedParams,
+      ...predefinedParams!,
       [name.toLowerCase().replace(/\s/g, "")]: params,
     });
     setSelected(false);
   };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
 
   return (
     <div className="algorithm">
@@ -208,8 +197,8 @@ const SelectAlgorithms: React.FC = () => {
         placeholder="点击选择或可自定义算法"
         optionFilterProp="children"
         onChange={onChange}
-        onSearch={onSearch}
         filterOption={filterOption}
+        onFocus={onSearch}
         options={options}
         optionRender={(option) => {
           const content = <div>{option.label}</div>;
@@ -230,14 +219,16 @@ const SelectAlgorithms: React.FC = () => {
         <div className="algorithm_params">
           {algorithmParams !== null && (
             <>
-              {Object.entries(algorithmParams).map(([key, value], index) => (
-                <Typography.Paragraph key={index}>
-                  <div className="param-row">
-                    <span>{key}: </span>
-                    <Input type="text" id={key} value={value as string} />
-                  </div>
-                </Typography.Paragraph>
-              ))}
+              {Object.entries(predefinedParams![select_algorithm_name]).map(
+                ([key, value], index) => (
+                  <Typography.Paragraph key={index}>
+                    <div className="param-row">
+                      <span>{key}: </span>
+                      <Input type="text" id={key} value={value as string} />
+                    </div>
+                  </Typography.Paragraph>
+                )
+              )}
               <div className="btn">
                 <Button type="primary" className="upload-data-btn">
                   上传数据
