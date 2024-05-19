@@ -3,8 +3,16 @@ import { useState, useEffect } from "react";
 import { debounce } from "../utils";
 
 // 新增的验证函数
-const isValidFirstNum = (value: string): boolean =>
-  /^\d{5}$/.test(value.trim());
+// const isValidFirstNum = (value: string): boolean =>
+//   /^\d{5}$/.test(value);
+
+const isValidFirstNum = (str: string): boolean => {
+  if (!str || str.length !== 5 || !/^\d+$/.test(str)) {
+    return false;
+  }
+  const num = parseInt(str, 10);
+  return num >= 10001 && num % 10 === 1;
+};
 const isValidOtherNum = (num: string): boolean => /^\d+(?:\.\d+)?$/.test(num);
 
 const validateInput = (value: string): boolean | string => {
@@ -42,6 +50,9 @@ const MultiTextInput: React.FC<MultiTextInputProps> = ({ label, onChange }) => {
       type: isValid ? "success" : "error",
       content: isValid ? "输入合法" : "输入不合法，请检查输入格式是否正确",
       duration: 2,
+      style: {
+        marginTop: "5vh",
+      },
     });
   };
 

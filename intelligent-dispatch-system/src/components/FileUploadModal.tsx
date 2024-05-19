@@ -9,7 +9,7 @@ interface UploadResponseData {
 type Props = {
   show: boolean;
   handleClose: () => void;
-  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFileUpload: () => void;
 };
 
 const FileUploadModal = ({ show, handleClose, handleFileUpload }: Props) => {
@@ -25,19 +25,22 @@ const FileUploadModal = ({ show, handleClose, handleFileUpload }: Props) => {
   };
 
   const onFileUpload = async () => {
-    if (!algorithmName && !file) {
-      message.error("请提供算法名称和文件");
+    if (!algorithmName) {
+      message.error("请提供算法名称");
       return;
-    }
-
-    try {
-      const response: { data: UploadResponseData } =
-        await uploadCustomAlgorithm(file!, algorithmName!);
-
-      handleClose(); // 隐藏Modal after successful upload
-      console.log(response.data);
-    } catch (error) {
-      message.error("算法文件上传失败");
+    } else if (!file) {
+      message.error("请提供算法文件");
+      return;
+    } else {
+      try {
+        console.log(file, algorithmName);
+        const response: { data: UploadResponseData } =
+          await uploadCustomAlgorithm(file!, algorithmName!);
+        handleFileUpload();
+        handleClose(); // 隐藏Modal after successful upload
+      } catch (error) {
+        message.error("算法文件上传失败");
+      }
     }
   };
 

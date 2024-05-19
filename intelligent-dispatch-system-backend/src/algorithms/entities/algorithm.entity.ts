@@ -12,6 +12,15 @@ export class Algorithm {
   @Column()
   label: string;
 
+  @Column()
+  optimalSolutionValue: number;
+
+  @Column()
+  calculatedTimeValue: number;
+
+  @Column()
+  color: string;
+
   @OneToMany(() => PredefinedParam, (param) => param.algorithm)
   params: PredefinedParam[];
 }

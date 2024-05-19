@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Select, Input, Typography, Button, message } from "antd";
+import { Select, Input, Typography, Button, message, Tooltip } from "antd";
 import "./index.scss";
 import FileUploadModal from "./FileUploadModal";
-import { debounce } from "../utils";
 import { getAllAlgorithms } from "../interface";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 
 interface Option {
   value: string;
@@ -49,7 +49,7 @@ type PredefinedAlgorithmParams = {
   };
 };
 
-const SelectAlgorithms: React.FC = () => {
+const SelectAlgorithms: React.FC = (data: any) => {
   const [algorithmParams, setAlgorithmParams] =
     useState<AlgorithmParams | null>(null);
   const [selected, setSelected] = useState<boolean>(false);
@@ -57,6 +57,7 @@ const SelectAlgorithms: React.FC = () => {
   const [select_algorithm_name, setSelect_algorithm_name] =
     useState<string>("");
   const [customAlgorithmName, setCustomAlgorithmName] = useState<string>("");
+  const [al_bref_name, setAl_bref_name] = useState<string>("");
   const [customParameters, setCustomParameters] = useState<
     {
       name: string;
@@ -67,34 +68,23 @@ const SelectAlgorithms: React.FC = () => {
       name: "算例规模工件数量X机器数量",
       value: "10*6",
     },
-    { name: "", value: "" },
   ]);
   const [options, setOptions] = useState<Option[]>([]);
 
   const [predefinedParams, setPredefinedParams] =
     useState<PredefinedAlgorithmParams>();
 
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const [parametersAdded, setParametersAdded] = useState<boolean>(false);
+  const [algorithmFileUploaded, setAlgorithmFileUploaded] =
+    useState<boolean>(false);
+
   const openModal = () => setIsModalVisible(true);
 
   const handleCloseModal = () => setIsModalVisible(false);
 
-  const handleFileRead = (event: ProgressEvent<FileReader>) => {
-    if (event.target && event.target.result) {
-      handleCloseModal();
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      const fileReader = new FileReader();
-      fileReader.onload = handleFileRead;
-      fileReader.onerror = () =>
-        message.error("Error occurred while reading the file.");
-      fileReader.readAsText(selectedFile);
-    }
-  };
+  const handleFileUpload = () => setAlgorithmFileUploaded(true);
 
   const onChange = (value: string) => {
     setSelected(true);
@@ -140,7 +130,6 @@ const SelectAlgorithms: React.FC = () => {
       setOptions(optionsArr);
       setPredefinedParams(predefinedParams);
       setAlgorithmParams(predefinedParams);
-      console.log("predefinedParams", predefinedParams);
     } catch (error) {
       console.error("Error fetching algorithms:", error);
     } finally {
@@ -158,6 +147,7 @@ const SelectAlgorithms: React.FC = () => {
       ...prevParameters,
       { name: "", value: "" },
     ]);
+    setParametersAdded(true);
   };
 
   const handleCustomParamValueChange = (
@@ -173,15 +163,25 @@ const SelectAlgorithms: React.FC = () => {
     }
   };
 
-  const handleAddAlgorithm = (name: string, params: AlgorithmParams) => {
-    setOptions([
-      ...options,
-      { value: name.toLowerCase().replace(/\s/g, ""), label: name },
-    ]);
+  const handleAddAlgorithm = (
+    value: string,
+    label: string,
+    params: AlgorithmParams
+  ) => {
+    const newOption = {
+      value: value.toLowerCase().replace(/\s/g, ""),
+      label: label,
+    };
+    const updatedOptions = [newOption, ...options];
+
+    setOptions(updatedOptions);
     setPredefinedParams({
       ...predefinedParams!,
-      [name.toLowerCase().replace(/\s/g, "")]: params,
+      [value.toLowerCase().replace(/\s/g, "")]: params,
     });
+    setCustomAlgorithmName("");
+    setAl_bref_name("");
+    setCustomParameters([]);
     setSelected(false);
   };
 
@@ -198,7 +198,7 @@ const SelectAlgorithms: React.FC = () => {
         optionFilterProp="children"
         onChange={onChange}
         filterOption={filterOption}
-        onFocus={onSearch}
+        // onFocus={onSearch}
         options={options}
         optionRender={(option) => {
           const content = <div>{option.label}</div>;
@@ -238,7 +238,10 @@ const SelectAlgorithms: React.FC = () => {
           )}
           {algorithmParams === null && (
             <>
-              <div className="custom-algorithm-params">
+              <div
+                className="custom-algorithm-params"
+                style={{ display: "flex", flexDirection: "column" }}
+              >
                 <Input
                   type="text"
                   id="algorithm_name"
@@ -252,6 +255,29 @@ const SelectAlgorithms: React.FC = () => {
                   placeholder="请输入自定义算法名称"
                   onChange={(e) => setCustomAlgorithmName(e.target.value)}
                 />
+                <Input
+                  type="text"
+                  id="algorithm_name"
+                  value={al_bref_name}
+                  style={{
+                    width: "200px",
+                    margin: "auto",
+                    marginBottom: "10px",
+                  }}
+                  placeholder="算法英文简洁名称"
+                  onChange={(e) => setAl_bref_name(e.target.value)}
+                  suffix={
+                    <Tooltip
+                      title="设置算法的英文名称简称，为了方便后面的调度显示，例如：
+                    遗传算法，可设置为：yiChuan（拼音） 或者 genetics(英文) 都可"
+                    >
+                      <QuestionCircleOutlined
+                        style={{ color: "rgba(0,0,0,.45)" }}
+                      />
+                    </Tooltip>
+                  }
+                />
+
                 {customParameters.map((param, index) => (
                   <Typography.Paragraph key={index}>
                     <div className="param-row">
@@ -301,13 +327,19 @@ const SelectAlgorithms: React.FC = () => {
                   type="primary"
                   className="add-data-btn"
                   onClick={() => {
-                    handleAddAlgorithm(
-                      customAlgorithmName,
-                      customParameters.reduce((acc, curr) => {
-                        acc[curr.name] = curr.value;
-                        return acc;
-                      }, {} as AlgorithmParams)
-                    );
+                    console.log(parametersAdded, algorithmFileUploaded);
+                    if (parametersAdded && algorithmFileUploaded) {
+                      handleAddAlgorithm(
+                        al_bref_name,
+                        customAlgorithmName,
+                        customParameters.reduce((acc, curr) => {
+                          acc[curr.name] = curr.value;
+                          return acc;
+                        }, {} as AlgorithmParams)
+                      );
+                    } else {
+                      message.warning("请先添加参数并上传算法文件");
+                    }
                   }}
                 >
                   添加算法

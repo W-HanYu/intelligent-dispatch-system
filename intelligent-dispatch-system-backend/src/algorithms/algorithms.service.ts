@@ -13,17 +13,43 @@ export class AlgorithmsService {
     private readonly paramRepository: Repository<PredefinedParam>,
   ) {}
 
-  async onModuleInit() {
-    await this.insertInitialData();
-  }
-
   async insertInitialData() {
     const algorithms = [
-      { value: 'yichuan', label: '遗传算法' },
-      { value: 'jinji', label: '禁忌算法' },
-      { value: 'lizi', label: '粒子群优化算法' },
-      { value: 'tuihuo', label: '模拟退火算法' },
-      { value: 'custom', label: '自定义算法' },
+      {
+        value: 'yichuan',
+        label: '遗传算法',
+        optimalSolutionValue: 42,
+        calculatedTimeValue: 9031,
+        color: '#132cff',
+      },
+      {
+        value: 'jinji',
+        label: '禁忌算法',
+        optimalSolutionValue: 46,
+        calculatedTimeValue: 1515,
+        color: '#ff131f',
+      },
+      {
+        value: 'lizi',
+        label: '粒子群优化算法',
+        optimalSolutionValue: 83,
+        calculatedTimeValue: 172,
+        color: '#91cc75',
+      },
+      {
+        value: 'tuihuo',
+        label: '模拟退火算法',
+        optimalSolutionValue: 58,
+        calculatedTimeValue: 313,
+        color: '#f00726',
+      },
+      {
+        value: 'custom',
+        label: '自定义算法',
+        optimalSolutionValue: 0,
+        calculatedTimeValue: 0,
+        color: '',
+      },
     ];
 
     const predefinedParams = {
@@ -57,30 +83,30 @@ export class AlgorithmsService {
       ],
     };
 
-    // 先清理重复的 value
-    const duplicateValues = await this.algorithmRepository
-      .createQueryBuilder('algorithm')
-      .select('value')
-      .addSelect('COUNT(*)', 'count')
-      .groupBy('value')
-      .having('COUNT(*) > 1')
-      .getRawMany();
+    // // 先清理重复的 value
+    // const duplicateValues = await this.algorithmRepository
+    //   .createQueryBuilder('algorithm')
+    //   .select('value')
+    //   .addSelect('COUNT(*)', 'count')
+    //   .groupBy('value')
+    //   .having('COUNT(*) > 1')
+    //   .getRawMany();
 
-    for (const { value } of duplicateValues) {
-      const duplicates = await this.algorithmRepository.find({
-        where: { value },
-      });
-      for (let i = 1; i < duplicates.length; i++) {
-        await this.algorithmRepository.remove(duplicates[i]);
-      }
-    }
+    // for (const { value } of duplicateValues) {
+    //   const duplicates = await this.algorithmRepository.find({
+    //     where: { value },
+    //   });
+    //   for (let i = 1; i < duplicates.length; i++) {
+    //     await this.algorithmRepository.remove(duplicates[i]);
+    //   }
+    // }
 
-    // 清理空值条目
-    await this.algorithmRepository
-      .createQueryBuilder('algorithm')
-      .delete()
-      .where('value IS NULL OR value = ""')
-      .execute();
+    // // 清理空值条目
+    // await this.algorithmRepository
+    //   .createQueryBuilder('algorithm')
+    //   .delete()
+    //   .where('value IS NULL OR value = ""')
+    //   .execute();
 
     for (const algorithm of algorithms) {
       const existingAlgorithm = await this.algorithmRepository.findOneBy({
@@ -102,8 +128,6 @@ export class AlgorithmsService {
         }
       }
     }
-
-
   }
 
   async createAlgorithm(algorithm: Partial<Algorithm>): Promise<Algorithm> {
@@ -117,8 +141,6 @@ export class AlgorithmsService {
   async getAllAlgorithms(): Promise<Algorithm[]> {
     return this.algorithmRepository.find({ relations: ['params'] });
   }
-
-
 
   // async getAlgorithmById(id: number): Promise<Algorithm> {
   //   return this.algorithmRepository.findOne(id, { relations: ['params'] });

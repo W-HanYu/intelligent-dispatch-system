@@ -3,12 +3,20 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import "./index.scss";
 import { Avatar, Dropdown, Menu, Space, Switch, message, Tooltip } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import UploadFile from "../components/UploadFile";
 import SelectAlgorithms from "../components/SelectAlgorithms";
 import MultiTextInput from "../components/MultiTextInput";
 import { debounce } from "../utils";
+import { getAllAlgorithms } from "../interface";
+
+interface AlgorithmData {
+  name: string;
+  optimalSolutionValue: number;
+  calculatedTimeValue: number;
+  color: string; // 或者使用更具体的类型，比如 `#rrggbb` 的正则表达式校验，但为了简单起见这里使用string
+}
 
 const getItemStyle = (opacity = 1) => ({
   barBorderRadius: 5,
@@ -39,39 +47,37 @@ const generateChartOption = (
 
 const SchedulerSystem = () => {
   const [isManualInput, setIsManualInput] = useState(true);
-  const [geneticsData, setGeneticsData] = useState<number>(8200);
+  const [isFetched, setIsFetched] = useState<boolean>(false);
   const chart1Ref = useRef(null);
   const chart2Ref = useRef(null);
   const handleInputChange = (values: string[]) => {
     console.log("Manual input values:", values);
     // 处理手动输入的数据
   };
-  const [data, setData] = useState([
-    {
-      name: "遗传",
-      optimalSolutionValue: 42,
-      calculatedTimeValue: 9031,
-      color: "#132cff",
-    },
-    {
-      name: "禁忌",
-      optimalSolutionValue: 46,
-      calculatedTimeValue: 1515,
-      color: "#ff131f",
-    },
-    {
-      name: "粒子群优化",
-      optimalSolutionValue: 83,
-      calculatedTimeValue: 172,
-      color: "#91cc75",
-    },
-    {
-      name: "模拟退火",
-      optimalSolutionValue: 58,
-      calculatedTimeValue: 313,
-      color: "#f00726",
-    },
-  ]);
+  const [data, setData] = useState<AlgorithmData[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const res = await getAllAlgorithms();
+      const { data } = res.data;
+      const alDataArr = data.reduce((acc: any[], item: any) => {
+        if (item.value !== "custom") {
+          acc.push({
+            name: item.label.slice(0, -2),
+            optimalSolutionValue: item.optimalSolutionValue,
+            calculatedTimeValue: item.calculatedTimeValue,
+            color: item.color,
+          });
+        }
+        return acc;
+      }, []);
+      setData(alDataArr);
+    } catch (err) {
+      //
+    } finally {
+      setIsFetched(true);
+    }
+  };
 
   const xAxisData = data.map((item) => {
     return item.name;
@@ -131,7 +137,7 @@ const SchedulerSystem = () => {
   // 生成两个图表的配置
   const chartOption1 = generateChartOption(
     "最优解柱状图",
-    xAxisData, // 假设 xAxisData 已经定义
+    xAxisData,
     data.map((item, index) => {
       return {
         value: item.optimalSolutionValue,
@@ -161,11 +167,15 @@ const SchedulerSystem = () => {
   );
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     Promise.all([
       initChart(chart1Ref, chartOption1),
       initChart(chart2Ref, chartOption2),
     ]);
-  }, []);
+  }, [isFetched]);
   return (
     <div id="index-container">
       <div className="header">

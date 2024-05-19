@@ -24,7 +24,6 @@ export class UploadCustomAlgorithmController {
         destination: './uploadCustomAlgorithm',
         filename: (req, file, cb) => {
           const { originalname } = file;
-          // const filename = `${originalname}.cpp`;
           cb(null, originalname);
         },
       }),
@@ -35,6 +34,10 @@ export class UploadCustomAlgorithmController {
     @Body('algorithmName') algorithmName: string,
     @Res() res: Response,
   ) {
+    if (!file) {
+      throw new HttpException('No C++ file uploaded', HttpStatus.BAD_REQUEST);
+    }
+
     const gypContent = `{
     "targets": [
         {
@@ -53,7 +56,7 @@ export class UploadCustomAlgorithmController {
     ]
 }`;
 
-    fs.writeFileSync(path.join(__dirname, '../../binding.gyp'), gypContent);
+    fs.writeFileSync(path.join('../../binding.gyp'), gypContent);
 
     try {
       await this.runNodeGyp();
@@ -67,15 +70,19 @@ export class UploadCustomAlgorithmController {
       if (typeof addon['main'] === 'function') {
         const result = addon['main']();
 
-        // Validate and format the result
-        if (this.validateOutput(result)) {
-          return res.json({
-            message: 'File uploaded, compiled, and executed successfully',
-            result,
-          });
-        } else {
-          return res.status(400).json({ message: 'Invalid output format' });
-        }
+        // // Validate and format the result
+        // if (this.validateOutput(result)) {
+        //   return res.json({
+        //     message: 'File uploaded, compiled, and executed successfully',
+        //     result,
+        //   });
+        // } else {
+        //   return res.status(400).json({ message: 'Invalid output format' });
+        // }
+        return res.json({
+          message: 'File uploaded, compiled, and executed successfully',
+          result,
+        });
       } else {
         throw new HttpException(
           'Algorithm function not found in the uploaded file',

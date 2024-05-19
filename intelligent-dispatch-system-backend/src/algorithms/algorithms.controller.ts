@@ -24,6 +24,11 @@ export class AlgorithmsController {
     return this.algorithmsService.getAllAlgorithms();
   }
 
+  @Get('initial_data')
+  async getInitialData() {
+    return await this.algorithmsService.insertInitialData();
+  }
+
   // @Get(':id')
   // getAlgorithmById(@Param('id') id: number): Promise<Algorithm> {
   //   return this.algorithmsService.getAlgorithmById(id);
